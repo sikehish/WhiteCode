@@ -1,2 +1,2 @@
-# Ably-Hackathon
-This repository was created as part of Ably Hackathon
+# WhiteCode
+Your Collaborative code+white board video call app
