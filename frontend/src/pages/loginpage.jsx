@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function LoginPage({setIsAuthenticated}) {
+function LoginPage({ setIsAuthenticated }) {
     const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true); // To toggle between login and signup
     const [formData, setFormData] = useState({
@@ -28,9 +28,11 @@ function LoginPage({setIsAuthenticated}) {
             navigate("/dashboard/*")
         } else {
             // Perform signup logic here
+            setIsLogin(true);
             navigate("/login")
         }
 
+        {/* check data. REMOVE THIS LATER */ }
         console.log('Form data:', formData);
     };
 

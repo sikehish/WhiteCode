@@ -2,12 +2,12 @@ import React from 'react';
 import Navbar from '../components/navbar';
 import { Link } from 'react-router-dom';
 
-function HomePage({isAuthenticated}) {
+function HomePage({ isAuthenticated }) {
     return (
         <div>
             {/* Header */}
             <header>
-                <Navbar isAuthenticated={isAuthenticated}/>
+                <Navbar isAuthenticated={isAuthenticated} />
             </header>
 
             {/* Hero Section */}
@@ -57,17 +57,18 @@ function HomePage({isAuthenticated}) {
             {/* Floating Plus Button (for mobile) */}
             <div className="fixed bottom-16 right-4 md:hidden">
                 {/* Link to Start a Meeting */}
-                <Link to="/meeting" className="inline-block bg-blue-500 text-white rounded-full p-3 shadow-lg hover:bg-blue-600">
+                <Link to="/start-meeting" className="inline-block bg-blue-500 text-white rounded-full p-3 shadow-lg hover:bg-blue-600">
                     <img src="" alt="Start Meeting" className="w-12 h-12" />
                 </Link>
             </div>
 
-            {/* Footer */}
-            <footer className="bg-gray-900 text-white py-4">
+            {/* Footer 
+            <footer className="bg-gray-900 text-white py-4 fixed bottom-0 w-full">
                 <div className="container mx-auto text-center">
                     <p>&copy; 2023 Online Meeting Clone</p>
                 </div>
             </footer>
+            */}
         </div>
     );
 }

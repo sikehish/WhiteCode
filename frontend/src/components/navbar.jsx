@@ -12,8 +12,7 @@ function Navbar({ isAuthenticated }) {
     };
 
     const handleLogout = () => {
-        // Perform any logout logic here (e.g., clearing authentication state)
-        // Then navigate to the home page ("/")
+        isAuthenticated = false;
         navigate('/');
     };
 
@@ -60,9 +59,15 @@ function Navbar({ isAuthenticated }) {
                                         >
                                             Logout
                                         </Link>
+                                    ) : text.toLowerCase() === 'login' ? (
+                                        <Link to="/login" className="hover:text-gray-300">
+                                            Login
+                                        </Link>
                                     ) : (
+                                        // Content to render for other cases (Home, About, Services, Contact, etc.)
                                         <Link
-                                            to={`/${text.toLowerCase()}`}
+                                            to={isAuthenticated ? '/dashboard/*' : '/'}
+                                            //to={`/${text.toLowerCase()}`} we can use this if we need this content, maybe add github profiles here
                                             className="hover:text-gray-300"
                                         >
                                             {text}
@@ -72,10 +77,11 @@ function Navbar({ isAuthenticated }) {
                             ))}
                         </ul>
                     </nav>
+
                 </Toolbar>
             </AppBar>
 
-            <div className="md:hidden">
+            <div className="lg:hidden">
                 <Drawer anchor="left" open={isMenuOpen} onClose={toggleMenu}>
                     <List className="w-64">
                         {menuItems.map((text) => (
@@ -85,8 +91,11 @@ function Navbar({ isAuthenticated }) {
                                 onClick={() => {
                                     if (text.toLowerCase() === 'logout') {
                                         handleLogout();
+                                    } else if (text.toLowerCase() === 'login') {
+                                        // navigate(`/${text.toLowerCase()}`);
+                                        navigate('/login')
                                     } else {
-                                        navigate(`/${text.toLowerCase()}`);
+                                        navigate(isAuthenticated ? '/dashboard/*' : '/')
                                     }
                                     toggleMenu(); // Close the drawer after clicking an item
                                 }}
