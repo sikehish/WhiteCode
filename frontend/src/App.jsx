@@ -13,7 +13,6 @@ function App() {
         <Route path="/signup" element={<LoginPage isLogin={false} setIsAuthenticated={setIsAuthenticated} />} />
         <Route path="/" element={<GuestPage />} />
         <Route path="/dashboard/*" element={<HomePage isAuthenticated={isAuthenticated}/>} />
-
       </Routes>
     </Router>
   );
