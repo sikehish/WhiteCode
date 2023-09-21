@@ -19,7 +19,6 @@ function Navbar({ isAuthenticated }) {
     const menuItems = isAuthenticated
         ? ['Home', 'About', 'Services', 'Contact', 'Logout']
         : ['Home', 'About', 'Services', 'Contact', 'Login'];
-
     return (
         <div>
             <AppBar position="static" className="bg-gray-900">
