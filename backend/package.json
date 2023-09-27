@@ -28,6 +28,7 @@
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {
+    "nodemon": "^3.0.1",
     "prettier": "2.8.8"
   }
 }
