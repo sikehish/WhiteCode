@@ -79,9 +79,9 @@ exports.userSignup=asyncWrapper(async (req, res) => {
 })
 
 exports.getPeerId=asyncWrapper(async (req, res) => {
-  const { username } = req.params;
+  const { email } = req.params;
 
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
     if (!user) {
         res.status(404)
         throw new Error('User not found')
