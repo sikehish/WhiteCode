@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './pages/homepage';
-import LoginPage from './pages/loginpage';
-import GuestPage from './pages/guestpage';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import GuestPage from './pages/GuestPage';
 import VideoCall from './webrtc/VideoCall'
 import Room from './webrtc/Room';
 import { useAuthContext } from './context/AuthContext';
