@@ -24,6 +24,8 @@
     "mongoose": "^7.2.0",
     "morgan": "^1.10.0",
     "nodemailer": "^6.9.2",
+    "peer": "^1.0.1",
+    "socket.io": "^4.7.2",
     "validator": "^13.9.0",
     "xss-clean": "^0.1.1"
   },

@@ -12,6 +12,9 @@ const userSchema = new mongoose.Schema({
     minlength: [3, 'Your name cannot be less than 3 characters'],
     maxlength: [20,'Your name cannot exceed 20 characters']
   },
+  peerId: {
+    type: String,
+  },
   email: {
     type: String,
     required: true,
