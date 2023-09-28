@@ -120,10 +120,11 @@ exports.userLogin =asyncWrapper( async (req, res) => {
           throw new Error("Incorrect password")
         }
 
-        if(!user.verified) {
-          res.status(401)
-          throw new Error("User is not verified")
-        }
+        //NOTE: Will be implemented during prod
+        // if(!user.verified) {
+        //   res.status(401)
+        //   throw new Error("User is not verified")
+        // }
 
     // Create a JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_KEY, { expiresIn: '5d'});
