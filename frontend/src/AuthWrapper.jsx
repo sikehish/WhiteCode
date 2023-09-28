@@ -4,11 +4,9 @@ import { BrowserRouter as Router } from 'react-router-dom'
 
 function AuthWrapper() {
   return (
-    <Router>
     <AuthProvider>
         <App />
     </AuthProvider>
-    </Router>
   )
 }
 
