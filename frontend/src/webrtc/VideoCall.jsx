@@ -1,62 +1,72 @@
-// src/components/VideoCall.js
-
+// In your React component (e.g., VideoCall.js)
 import React, { useEffect, useRef } from 'react';
+import Peer from 'peerjs';
 
 function VideoCall() {
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
+  const localVideoRef = useRef();
+  const remoteVideoRef = useRef();
+
   let localStream;
-  let peerConnection;
+  let peer;
 
   useEffect(() => {
-    // Function to initialize the WebRTC connection
-    const setupWebRTC = async () => {
-      try {
-        // Get local media stream
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        localVideoRef.current.srcObject = localStream;
+    // Initialize PeerJS with your own API key
+    peer = new Peer({ key: 'YOUR_PEERJS_API_KEY' });
 
-        // Create peer connection
-        peerConnection = new RTCPeerConnection();
+    // Get access to user's webcam and microphone
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        localVideoRef.current.srcObject = stream;
+        localStream = stream;
 
-        // Add local stream to peer connection
-        localStream.getTracks().forEach((track) => {
-          peerConnection.addTrack(track, localStream);
+        // Define your PeerJS events (e.g., 'open', 'call', 'stream', 'close')
+        peer.on('open', (id) => {
+          // 'id' is the unique PeerJS ID for this client
+          console.log('My peer ID is: ' + id);
         });
 
-        // Handle remote stream
-        peerConnection.ontrack = (event) => {
-          if (remoteVideoRef.current) {
-            remoteVideoRef.current.srcObject = event.streams[0];
-          }
-        };
+        // Handle incoming calls
+        peer.on('call', (call) => {
+          // Answer the call and add remote stream to the video element
+          call.answer(localStream);
+          call.on('stream', (remoteStream) => {
+            remoteVideoRef.current.srcObject = remoteStream;
+          });
+        });
+      })
+      .catch((error) => {
+        console.error('Error accessing webcam/microphone:', error);
+      });
 
-        // Handle ICE candidate events
-        peerConnection.onicecandidate = (event) => {
-          if (event.candidate) {
-            // Send the ICE candidate to the other peer (via your signaling server)
-          }
-        };
-
-        // Create an offer to start the call
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
-
-        // Send the offer to the other peer (via your signaling server)
-      } catch (error) {
-        console.error('Error setting up WebRTC:', error);
+    return () => {
+      // Cleanup: close the PeerJS connection and stop local stream
+      if (peer) {
+        peer.destroy();
+      }
+      if (localStream) {
+        localStream.getTracks().forEach((track) => {
+          track.stop();
+        });
       }
     };
-
-    setupWebRTC();
   }, []);
+
+  const startCall = () => {
+    // Create a call to another PeerJS ID (recipientPeerId)
+    const recipientPeerId = 'RECIPIENT_PEER_ID'; // Replace with the recipient's ID
+    const call = peer.call(recipientPeerId, localStream);
+
+    // Add remote stream to the video element
+    call.on('stream', (remoteStream) => {
+      remoteVideoRef.current.srcObject = remoteStream;
+    });
+  };
 
   return (
     <div>
-      <div className="flex justify-center space-x-4">
-        <video ref={localVideoRef} autoPlay playsInline muted className="w-1/2" />
-        <video ref={remoteVideoRef} autoPlay playsInline className="w-1/2" />
-      </div>
+      <video ref={localVideoRef} autoPlay playsInline muted className="w-1/2" />
+      <video ref={remoteVideoRef} autoPlay playsInline className="w-1/2" />
+      <button onClick={startCall}>Start Call</button>
     </div>
   );
 }

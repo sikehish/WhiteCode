@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.btn {
+    padding: 0.5rem 1rem;
+    background-color: #4299e1;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease
+}
+
+.btn:hover {
+      background-color: #3182ce;
+    }
+  
+.btn-red {
+    background-color: #e53e3e;
+  
+}
+
+.btn-red:hover {
+      background-color: #c53030;
+    }

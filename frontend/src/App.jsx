@@ -4,6 +4,7 @@ import HomePage from './pages/homepage';
 import LoginPage from './pages/loginpage';
 import GuestPage from './pages/guestpage';
 import VideoCall from './webrtc/VideoCall'
+import Room from './webrtc/Room';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
