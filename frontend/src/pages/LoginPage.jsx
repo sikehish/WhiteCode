@@ -18,22 +18,66 @@ function LoginPage({ setIsAuthenticated }) {
             [name]: value,
         });
     };
-
-    const handleSubmit = (e) => {
+    const handleSubmit =async (e) => {
         e.preventDefault();
-
+        //Add the fetch request to the backend here and its should be done
+        let data={
+            "email":formData.email,
+            "password":formData.password,
+            "confirmPassword":formData.confirmPassword,
+            "name":formData.name,
+        }
+        let reqRoute;
+        if(isLogin){
+            reqRoute="api/users/login";
+        }
+        else{
+            reqRoute="api/users/signup";
+        }
+        const requestOptions = {
+            mode: 'cors',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:JSON.stringify(data),
+        };
+        
         if (isLogin) {
             // Perform login logic here 
+            //  fetch(
+            // reqRoute,requestOptions
+            // ).then(()=>{
+
+            //     setIsAuthenticated(true);
+            //     navigate("/dashboard/*")
+            // }).catch((e)=>{
+            //     console.log("the fetch request failed");
+            // });
+            const response=await fetch(reqRoute,requestOptions)
+            console.log(response.status)
+           if(response.status==200){
             setIsAuthenticated(true);
             navigate("/dashboard/*")
+           }
+           else{
+                navigate('/login')
+           }
+            
         } else {
             // Perform signup logic here
-            setIsLogin(true);
-            navigate("/login")
+           const response=await fetch(reqRoute,requestOptions)
+           console.log(response.status)
+           if(response.status==201){
+                setIsLogin(true);
+                navigate('/login');
+           }
+           else{
+                navigate('/signup')
+           }
+           
         }
 
         {/* check data. REMOVE THIS LATER */ }
-        console.log('Form data:', formData);
+        //console.log('Form data:', formData);
     };
 
     return (
