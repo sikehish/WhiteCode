@@ -1,6 +1,6 @@
 const express=require('express')
 const userRouter= express.Router()
-const { userLogin,userVerify, userSignup, deleteAccount, updateUser, resetRequestController, resetPasswordController}= require('../controllers/userController')
+const { userLogin,userVerify, userSignup, deleteAccount, updateUser, resetRequestController, resetPasswordController, getPeerId}= require('../controllers/userController')
 const { checkAuth } = require('../middleware/checkAuth')
 
 userRouter.route('/login').post(userLogin)
@@ -10,5 +10,9 @@ userRouter.route('/delete').delete(checkAuth,deleteAccount)
 userRouter.route('/update').patch(checkAuth,updateUser)
 userRouter.route('/request-reset').post(resetRequestController)
 userRouter.route('/reset-password').patch(resetPasswordController)
+// Fetch the PeerJS ID of a user by username
+userRouter.route('/api/users/:username/peerid').get(getPeerId)
+
+  
 
 module.exports=userRouter
