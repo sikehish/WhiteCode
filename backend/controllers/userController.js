@@ -49,8 +49,11 @@ exports.userSignup=asyncWrapper(async (req, res) => {
     }
     
     //Sending an email to the user
-    
     const user = await User.create({ email, password, name });
+
+    //peerID for peerJS webRTC connection: a uniqueID
+    newUser.peerId = user._id.toString();
+    await user.save();
     
     const token = user.createToken();
     

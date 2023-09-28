@@ -11,7 +11,7 @@ function VideoCall() {
 
   useEffect(() => {
     // Initialize PeerJS with your own API key
-    peer = new Peer({ key: 'YOUR_PEERJS_API_KEY' });
+    peer = new Peer();
 
     // Get access to user's webcam and microphone
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
