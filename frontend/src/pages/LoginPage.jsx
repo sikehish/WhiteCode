@@ -19,7 +19,7 @@ function LoginPage({ setIsAuthenticated }) {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit =async (e) => {
       e.preventDefault();
         //Add the fetch request to the backend here and its should be done
         let data={
