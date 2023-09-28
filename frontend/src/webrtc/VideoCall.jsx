@@ -1,17 +1,27 @@
 // In your React component (e.g., VideoCall.js)
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Peer from 'peerjs';
 
 function VideoCall() {
   const localVideoRef = useRef();
   const remoteVideoRef = useRef();
+  const [isError, setIsError]=useState(false);
 
   let localStream;
   let peer;
 
   useEffect(() => {
     // Initialize PeerJS with your own API key
-    peer = new Peer();
+    const fetchPeerId= async()=>{
+      const res= await fetch(`/api/users/${email}/peerid`);
+      const data= await res.json();
+      return data;
+
+}  
+
+const peerId=fetchPeerId();
+console.log(peerId)
+ peer = new Peer(peerId);
 
     // Get access to user's webcam and microphone
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })

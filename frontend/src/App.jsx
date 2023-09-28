@@ -5,7 +5,9 @@ import LoginPage from './pages/loginpage';
 import GuestPage from './pages/guestpage';
 import VideoCall from './webrtc/VideoCall'
 import Room from './webrtc/Room';
+import { useAuthContext } from './context/AuthContext';
 function App() {
+  const {state}=useAuthContext()
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   return (
