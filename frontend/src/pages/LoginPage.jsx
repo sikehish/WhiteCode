@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../context/AuthContext';
 
 function LoginPage({ setIsAuthenticated }) {
     const navigate = useNavigate();
+    const {dispatch} = useAuthContext();
     const [isLogin, setIsLogin] = useState(true); // To toggle between login and signup
+    const [error, setError] = useState(null);
+    const [isSucc, setIsSucc] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -53,8 +59,10 @@ function LoginPage({ setIsAuthenticated }) {
             //     console.log("the fetch request failed");
             // });
             const response=await fetch(reqRoute,requestOptions)
-            console.log(response.status)
+            const {data}=await response.json();
+            console.log(data)
            if(response.status==200){
+            dispatch({user: data})
             setIsAuthenticated(true);
             navigate("/dashboard/*")
            }

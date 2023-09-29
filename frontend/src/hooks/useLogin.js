@@ -7,7 +7,7 @@ function useLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const { dispatch } = useAuthContext();
 
-  const login = async (email, password) => {
+  const login = async (data) => {
     setIsSucc(false);
     setIsLoading(true);
     setError(false);
@@ -17,7 +17,7 @@ function useLogin() {
       headers: {
         "Content-type": "application/json",
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(data),
     });
 
     const data = await res.json();
@@ -29,8 +29,8 @@ function useLogin() {
       //Some error -  refer to userController to see what error was thrown and most imp-the err property name
       setError(data.err);
     } else if (res.ok) {
-      localStorage.setItem("user", JSON.stringify(data));
-      dispatch({ type: "LOGIN", payload: data });
+      localStorage.setItem("user", JSON.stringify(data.data));
+      dispatch({ type: "LOGIN", payload: data.data });
 
       setError(false);
       setIsLoading(false);
