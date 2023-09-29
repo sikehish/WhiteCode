@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 function LoginPage({ setIsAuthenticated }) {
     const navigate = useNavigate();
@@ -62,11 +63,18 @@ function LoginPage({ setIsAuthenticated }) {
             const {data}=await response.json();
             console.log(data)
            if(response.status==200){
-            dispatch({user: data})
-            setIsAuthenticated(true);
+            dispatch({payload: data, type: 'LOGIN'})
+            localStorage.setItem("user", JSON.stringify(data));
+            toast.success("Logged in successfully!");
+            setError(false);
+            setIsLoading(false);
+            setIsSucc(true);
             navigate("/dashboard/*")
            }
            else{
+               toast.error("Log in not possible!");
+                setIsLoading(false);
+                setIsSucc(false);
                 navigate('/login')
            }
             

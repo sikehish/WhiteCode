@@ -2,21 +2,26 @@ import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Drawer, List, ListItem, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useNavigate } from 'react-router-dom';
+import useLogout from '../hooks/useLogout';
+import { useAuthContext } from '../context/AuthContext';
 
-function Navbar({ isAuthenticated }) {
+
+function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const logout=useLogout()
+    const{ state }=useAuthContext()
     const navigate = useNavigate();
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
-    const handleLogout = () => {
-        isAuthenticated = false;
+    const handleLogout =   () => {
+         logout();
         navigate('/');
     };
 
-    const menuItems = isAuthenticated
+    const menuItems = state?.user
         ? ['Home', 'About', 'Services', 'Contact', 'Logout']
         : ['Home', 'About', 'Services', 'Contact', 'Login'];
     return (
@@ -36,7 +41,7 @@ function Navbar({ isAuthenticated }) {
                         Logo
                     </Typography>
                     <div className="md:hidden flex-grow-1 text-right">
-                        {isAuthenticated ? (
+                        {state ? (
                             <Link to="/" className="hover:text-gray-300">
                                 Logout
                             </Link>
@@ -65,7 +70,7 @@ function Navbar({ isAuthenticated }) {
                                     ) : (
                                         // Content to render for other cases (Home, About, Services, Contact, etc.)
                                         <Link
-                                            to={isAuthenticated ? '/dashboard/*' : '/'}
+                                            to={state?.user ? '/dashboard/*' : '/'}
                                             //to={`/${text.toLowerCase()}`} we can use this if we need this content, maybe add github profiles here
                                             className="hover:text-gray-300"
                                         >
@@ -94,7 +99,7 @@ function Navbar({ isAuthenticated }) {
                                         // navigate(`/${text.toLowerCase()}`);
                                         navigate('/login')
                                     } else {
-                                        navigate(isAuthenticated ? '/dashboard/*' : '/')
+                                        navigate(state?.user ? '/dashboard/*' : '/')
                                     }
                                     toggleMenu(); // Close the drawer after clicking an item
                                 }}

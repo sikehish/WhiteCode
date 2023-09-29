@@ -24,6 +24,8 @@ export const AuthProvider = ({ children }) => {
     user: JSON.parse(localStorage.getItem("user")) || null,
   });
 
+  console.log(state)
+
   return (
     <AuthContext.Provider value={{ dispatch, state }}>
       {children}
