@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from '../components/navbar';
 import { Link } from 'react-router-dom';
+import Logo from '../assets/icon-video-call.png'
 
 function GuestPage() {
     return (
@@ -49,7 +50,7 @@ function GuestPage() {
             <div className="fixed bottom-16 right-4 md:hidden">
                 {/* redirects to login page for guest users*/}
                 <Link to="/login" className="inline-block bg-blue-500 text-white rounded-full p-3 shadow-lg hover:bg-blue-600">
-                    <img src="/home/anurag/Projects/WhiteCode/frontend/src/assets/icon-video-call.png" alt="Start Meeting" className="w-12 h-12" />
+                    <img src={Logo} alt="Start Meeting" className="w-12 h-12" />
                 </Link>
             </div>
 

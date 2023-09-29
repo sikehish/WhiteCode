@@ -2,12 +2,12 @@ import React from 'react';
 import Navbar from '../components/navbar';
 import { Link } from 'react-router-dom';
 
-function HomePage({ isAuthenticated }) {
+function HomePage() {
     return (
         <div>
             {/* Header */}
             <header>
-                <Navbar isAuthenticated={isAuthenticated} />
+                <Navbar />
             </header>
 
             {/* Hero Section */}
