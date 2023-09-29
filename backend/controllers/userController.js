@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User= require('../models/userModel');
 const validator=require('validator');
 const asyncWrapper=require('express-async-handler')
+const socket=require('socket.io')
 
 const  path = require('path');
 const { sendMail } = require('../utils/mailFunc');

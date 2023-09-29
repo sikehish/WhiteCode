@@ -7,7 +7,7 @@ function useSignup() {
   const [isSucc, setIsSucc] = useState(null);
   const { dispatch } = useAuthContext();
 
-  const signup = async (name, email, password) => {
+  const signup = async (data) => {
     setIsSucc(false);
     setIsLoading(true);
     setError(false);
@@ -19,7 +19,7 @@ function useSignup() {
         // mode: "no-cors",
         // "Access-Control-Allow-Origin": "http://localhost:3000",
       },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify(data),
     });
 
     const data = await res.json();

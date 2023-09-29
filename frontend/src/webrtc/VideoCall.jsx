@@ -1,19 +1,24 @@
 // In your React component (e.g., VideoCall.js)
 import React, { useEffect, useRef, useState } from 'react';
 import Peer from 'peerjs';
+import { useAuthContext } from '../context/AuthContext';
 
 function VideoCall() {
   const localVideoRef = useRef();
   const remoteVideoRef = useRef();
   const [isError, setIsError]=useState(false);
 
+  const { state } = useAuthContext()
+
   let localStream;
   let peer;
 
   useEffect(() => {
     // Initialize PeerJS with your own API key
+    console.log(state)
+    console.log(state)
     const fetchPeerId= async()=>{
-      const res= await fetch(`/api/users/${email}/peerid`);
+      const res= await fetch(`/api/users/${state?.user?.email}/peerid`);
       const data= await res.json();
       return data;
 
@@ -59,7 +64,7 @@ console.log(peerId)
         });
       }
     };
-  }, []);
+  }, [state?.user]);
 
   const startCall = () => {
     // Create a call to another PeerJS ID (recipientPeerId)
