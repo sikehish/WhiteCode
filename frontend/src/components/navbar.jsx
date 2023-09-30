@@ -22,8 +22,8 @@ function Navbar() {
     };
 
     const menuItems = state?.user
-        ? ['Home','VideoCall', 'About', 'Services', 'Contact', 'Logout']
-        : ['Home','VideoCall', 'About', 'Services', 'Contact', 'Login'];
+        ? ['Home', 'About', 'Services', 'Contact', 'Logout']
+        : ['Home', 'About', 'Services', 'Contact', 'Login'];
     return (
         <div>
             <AppBar position="static" className="bg-gray-900">
@@ -40,7 +40,7 @@ function Navbar() {
                     <Typography variant="h6" className="flex-grow">
                         Logo
                     </Typography>
-                    <Link to='/video'>Video</Link>
+                    <Link to='/room'> Video Call </Link>
                     <div className="md:hidden flex-grow-1 text-right">
                         {state ? (
                             <Link to="/" className="hover:text-gray-300">
