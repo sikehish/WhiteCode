@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Peer from 'peerjs';
 import { FiVideo, FiMic, FiPhoneCall, FiPhoneOff, FiVideoOff, FiMicOff } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 function VideoCall() {
   const localVideoRef = useRef();
@@ -48,7 +49,23 @@ function VideoCall() {
           incomingCall.on('stream', (remoteStream) => {
             setRemoteStream(remoteStream);
             remoteVideoRef.current.srcObject = remoteStream;
+            incomingCall.on('close', () => {
+            // Clear session information when the call ends
+            localStorage.removeItem('videoCallSession');
+
+            // Close the call and streams
+            if (callRef.current) {
+              callRef.current.close();
+            }
+            setLocalStream(null);
+            setRemoteStream(null);
+            toast.success("Call ended!")
+            // Navigate to the home page
+            navigate('/');
           });
+          });
+
+          
         })
         .catch((error) => {
           console.error('Error accessing webcam/microphone:', error);
@@ -64,6 +81,8 @@ function VideoCall() {
     if (!friendId) {
       return;
     }
+    // Store the friendId in localStorage
+  localStorage.setItem('friendId', friendId);
 
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
@@ -93,21 +112,39 @@ function VideoCall() {
 
   useEffect(() => {
     initializePeer();
-  }, [initializePeer]);
+  
+    // Listen for incoming data connections
+    peerRef.current.on('connection', (dataConnection) => {
+      dataConnection.on('data', (data) => {
+        if (data === 'call-ended') {
+          // Call has ended, navigate to the home page
+          navigate('/');
+          toast.success('Call ended by the other user.');
+        }
+      });
+    });
+  }, [initializePeer, navigate]);
+  
 
-  const endCall = () => {
-    // Clear session information when the call ends
-    localStorage.removeItem('videoCallSession');
-
-  if (callRef.current) {
-    callRef.current.close();
-  }
-  setLocalStream(null);
-  setRemoteStream(null);
-
-  // Navigate to the home page
-  navigate('/');
+  const sendCallEndedMessage = () => {
+    const friendId = localStorage.getItem('friendId'); // Retrieve friendId from localStorage
+    const dataConnection = peerRef.current.connect(friendId);
+  
+    dataConnection.on('open', () => {
+      dataConnection.send('call-ended');
+      dataConnection.close();
+    });
   };
+  
+  
+  const endCall = () => {
+    localStorage.removeItem('videoCallSession');
+    if (callRef.current) {
+      callRef.current.close();
+    }
+    sendCallEndedMessage(); // Notify the other peer that the call has ended
+  };
+  
 
   const toggleMic = () => {
     if (localStream) {
