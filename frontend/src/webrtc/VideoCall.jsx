@@ -109,20 +109,25 @@ function VideoCall() {
   const endCall = () => {
     // Clear session information when the call ends
     localStorage.removeItem('videoCallSession');
-    setLocalStream(null);
-    setRemoteStream(null);
 
-    // Close the call
     if (callRef.current) {
       callRef.current.close();
     }
-
+  
+    // Stop and close the local media stream and tracks
+    if (localStream) {
+      const tracks = localStream.getTracks();
+      tracks.forEach((track) => track.stop());
+    }
+  
+    // Set localStream and remoteStream to null to turn off the video
+    setLocalStream(null);
+    setRemoteStream(null);
+  
     // Notify the other user that the call has ended
     sendCallEndedMessage();
 
-    // Navigate to the home page
-    toast.success("Meeting ended!")
-    navigate('/');
+   
   };
 
   const sendCallEndedMessage = () => {
@@ -133,6 +138,9 @@ function VideoCall() {
       dataConnection.send('call-ended');
       dataConnection.close();
     });
+    toast.success("Call ended Sucessfully");
+    // Navigate to the home page
+    navigate('/');
   };
 
   const toggleMic = () => {
