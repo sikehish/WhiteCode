@@ -16,7 +16,7 @@ const RoomPage = () => {
     if (roomId.trim() === '') {
       alert('Please enter a valid room ID.');
     } else {
-      navigate(`/room/${roomId}`);
+      navigate(`/video/${roomId}`);
     }
   };
 
