@@ -5,7 +5,5 @@ import './index.css'
 import AuthWrapper from './AuthWrapper.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
     <AuthWrapper />
-  </React.StrictMode>,
 )

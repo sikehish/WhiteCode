@@ -11,7 +11,7 @@ userRouter.route('/update').patch(checkAuth,updateUser)
 userRouter.route('/request-reset').post(resetRequestController)
 userRouter.route('/reset-password').patch(resetPasswordController)
 // Fetch the PeerJS ID of a user by username
-userRouter.route('/peerid/:email').get(checkAuth,getPeerId)
+// userRouter.route('/peerid/:email').get(checkAuth,getPeerId)
 
   
 

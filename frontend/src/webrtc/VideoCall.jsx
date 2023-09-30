@@ -1,33 +1,48 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Peer from 'peerjs';
 import { FiVideo, FiMic, FiPhoneCall, FiPhoneOff, FiVideoOff, FiMicOff } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 function VideoCall() {
   const localVideoRef = useRef();
   const remoteVideoRef = useRef();
+  const peerRef = useRef(null);
+  const callRef = useRef(null);
   const [isError, setIsError] = useState(false);
-  const [peer, setPeer] = useState(null);
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
-  const [call, setCall] = useState(null);
   const [isMicMuted, setIsMicMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
+  const navigate = useNavigate();
 
-  const initializePeer = () => {
-    const peer = new Peer();
+  const initializePeer = useCallback(() => {
+    const savedSession = JSON.parse(localStorage.getItem('videoCallSession'));
+    const p = new Peer(savedSession ? savedSession.peerId : undefined);
 
-    peer.on('open', (id) => {
+    p.on('open', (id) => {
       console.log('My peer ID is: ' + id);
+
+      // Store session information in localStorage
+      const sessionData = {
+        peerId: id,
+        isCallActive: savedSession ? savedSession.isCallActive : false,
+      };
+      localStorage.setItem('videoCallSession', JSON.stringify(sessionData));
+
+      // Reconnect if a call is active
+      if (savedSession && savedSession.isCallActive) {
+        startCall();
+      }
     });
 
-    peer.on('call', (incomingCall) => {
+    p.on('call', (incomingCall) => {
       navigator.mediaDevices
         .getUserMedia({ video: true, audio: true })
         .then((stream) => {
           setLocalStream(stream);
           localVideoRef.current.srcObject = stream;
 
-          setCall(incomingCall);
+          callRef.current = incomingCall;
 
           incomingCall.answer(stream);
           incomingCall.on('stream', (remoteStream) => {
@@ -41,11 +56,7 @@ function VideoCall() {
         });
     });
 
-    setPeer(peer);
-  };
-
-  useEffect(() => {
-    initializePeer();
+    peerRef.current = p;
   }, []);
 
   const startCall = () => {
@@ -60,11 +71,19 @@ function VideoCall() {
         setLocalStream(stream);
         localVideoRef.current.srcObject = stream;
 
-        const call = peer.call(friendId, stream);
-        call.on('stream', (remoteStream) => {
+        const c = peerRef.current.call(friendId, stream);
+        callRef.current = c;
+        c.on('stream', (remoteStream) => {
           setRemoteStream(remoteStream);
           remoteVideoRef.current.srcObject = remoteStream;
         });
+
+        // Store session information with active call
+        const sessionData = {
+          peerId: peerRef.current.id,
+          isCallActive: true,
+        };
+        localStorage.setItem('videoCallSession', JSON.stringify(sessionData));
       })
       .catch((error) => {
         console.error('Error accessing webcam/microphone:', error);
@@ -72,13 +91,22 @@ function VideoCall() {
       });
   };
 
+  useEffect(() => {
+    initializePeer();
+  }, [initializePeer]);
+
   const endCall = () => {
-    if (call) {
-      call.close();
-    }
-    setLocalStream(null);
-    setRemoteStream(null);
-    setCall(null);
+    // Clear session information when the call ends
+    localStorage.removeItem('videoCallSession');
+
+  if (callRef.current) {
+    callRef.current.close();
+  }
+  setLocalStream(null);
+  setRemoteStream(null);
+
+  // Navigate to the home page
+  navigate('/');
   };
 
   const toggleMic = () => {
@@ -103,15 +131,13 @@ function VideoCall() {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="my-4">
-        <video ref={localVideoRef} autoPlay playsInline muted className="w-1/2" />
-      </div>
-      <div className="my-4">
-        <video ref={remoteVideoRef} autoPlay playsInline className="w-1/2" />
+      <div className='flex'>
+        <video ref={localVideoRef} autoPlay playsInline muted className="w-1/2 mt-10 mx-5" />
+        <video ref={remoteVideoRef} autoPlay playsInline className="w-1/2 mt-10 mx-5" />
       </div>
       <div className="flex space-x-4 my-4">
         {isError && <p>Error accessing webcam/microphone</p>}
-        {call ? (
+        {callRef.current ? (
           <button onClick={endCall} className="text-red-600">
             <FiPhoneOff size={32} />
           </button>

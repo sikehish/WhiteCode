@@ -52,9 +52,9 @@ exports.userSignup=asyncWrapper(async (req, res) => {
     //Sending an email to the user
     const user = await User.create({ email, password, name });
 
-    //peerID for peerJS webRTC connection: a uniqueID
-    user.peerId = user._id.toString();
-    await user.save();
+    // //peerID for peerJS webRTC connection: a uniqueID
+    // user.peerId = user._id.toString();
+    // await user.save();
     
     const token = user.createToken();
     
@@ -79,18 +79,18 @@ exports.userSignup=asyncWrapper(async (req, res) => {
   // }
 })
 
-exports.getPeerId=asyncWrapper(async (req, res) => {
-  // console.log("HAHAHAHA")
-  const { email } = req.params;
+// exports.getPeerId=asyncWrapper(async (req, res) => {
+//   // console.log("HAHAHAHA")
+//   const { email } = req.params;
 
-    const user = await User.findOne({ email });
-    if (!user) {
-        res.status(404)
-        throw new Error('User not found')
-    }
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//         res.status(404)
+//         throw new Error('User not found')
+//     }
 
-    res.status(200).json({ peerId: user.peerId });
-})
+//     res.status(200).json({ peerId: user.peerId });
+// })
 
 exports.userLogin =asyncWrapper( async (req, res) => {
   // try {
