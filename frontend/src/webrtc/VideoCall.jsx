@@ -15,18 +15,27 @@ function VideoCall() {
 
   useEffect(() => {
     // Initialize PeerJS with your own API key
-    console.log(state)
-    console.log(state)
+    // console.log(state)
+    // console.log(state)
     const fetchPeerId= async()=>{
-      const res= await fetch(`/api/users/${state?.user?.email}/peerid`);
+      const res= await fetch(`api/users/peerid/${state?.user?.email}`,{
+        headers:{
+          Authorization:`Bearer ${state?.user?.token}`
+        }
+      });
       const data= await res.json();
+      console.log(data)
       return data;
 
 }  
 
-const peerId=fetchPeerId();
+if(state?.user?.email){
+const peerId=fetchPeerId().then(data=> {
+  return data
+});
 console.log(peerId)
  peer = new Peer(peerId);
+ console.log(peer)
 
     // Get access to user's webcam and microphone
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -63,7 +72,7 @@ console.log(peerId)
           track.stop();
         });
       }
-    };
+    } }
   }, [state?.user]);
 
   const startCall = () => {

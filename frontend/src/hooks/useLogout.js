@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuthContext } from "../context/AuthContext";
+import { toast } from "react-toastify";
 
 function useLogout() {
   const { dispatch } = useAuthContext();
@@ -7,6 +8,7 @@ function useLogout() {
   const logout = () => {
     localStorage.removeItem("user");
     dispatch({ type: "LOGOUT" });
+    toast.success("Logged out!");
   };
   return logout;
 }
