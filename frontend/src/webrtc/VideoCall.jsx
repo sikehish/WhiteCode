@@ -1,16 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Peer from 'peerjs';
 import { FiVideo, FiMic, FiPhoneCall, FiPhoneOff, FiVideoOff, FiMicOff } from 'react-icons/fi';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 function VideoCall() {
-  const { id }=useParams();
   const localVideoRef = useRef();
   const remoteVideoRef = useRef();
   const peerRef = useRef(null);
   const callRef = useRef(null);
-  const [roomId, setRoomId] = useState(id);
+  const [peerId, setPeerId] =useState(null)
   const [isError, setIsError] = useState(false);
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
@@ -18,21 +17,25 @@ function VideoCall() {
   const [isVideoOff, setIsVideoOff] = useState(false);
   const navigate = useNavigate();
 
-
-
+  
   const initializePeer = useCallback(() => {
     const savedSession = JSON.parse(localStorage.getItem('videoCallSession'));
-    const peerId = savedSession ? savedSession.peerId : undefined;
-    const p = new Peer(peerId);
+    const p = new Peer(savedSession ? savedSession.peerId : undefined);
 
     p.on('open', (id) => {
       console.log('My peer ID is: ' + id);
+      setPeerId(id)
       // Store session information in localStorage
       const sessionData = {
         peerId: id,
         isCallActive: savedSession ? savedSession.isCallActive : false,
       };
       localStorage.setItem('videoCallSession', JSON.stringify(sessionData));
+
+      // Reconnect if a call is active
+      if (savedSession && savedSession.isCallActive) {
+        startCall();
+      }
     });
 
     p.on('call', (incomingCall) => {
@@ -48,11 +51,11 @@ function VideoCall() {
           incomingCall.on('stream', (remoteStream) => {
             setRemoteStream(remoteStream);
             remoteVideoRef.current.srcObject = remoteStream;
+          });
 
-            // Handle call ended by the other user
-            incomingCall.on('close', () => {
-              endCall();
-            });
+          // Handle call ended by the other user
+          incomingCall.on('close', () => {
+            endCall();
           });
         })
         .catch((error) => {
@@ -64,14 +67,14 @@ function VideoCall() {
     peerRef.current = p;
   }, []);
 
-  const joinRoom = () => {
-    if (roomId.trim() === '') {
+  const startCall = () => {
+    const friendId = prompt('Enter your friend\'s PeerJS ID:');
+    if (!friendId) {
       return;
     }
 
-    // Construct room-specific friendId
-    const friendId = `room-${roomId}`;
-    setRoomId('');
+    // Store the friendId in localStorage
+    localStorage.setItem('friendId', friendId);
 
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
@@ -79,7 +82,6 @@ function VideoCall() {
         setLocalStream(stream);
         localVideoRef.current.srcObject = stream;
 
-        // Call the room-specific friendId
         const c = peerRef.current.call(friendId, stream);
         callRef.current = c;
         c.on('stream', (remoteStream) => {
@@ -107,36 +109,31 @@ function VideoCall() {
   const endCall = () => {
     // Clear session information when the call ends
     localStorage.removeItem('videoCallSession');
+    setLocalStream(null);
+    setRemoteStream(null);
 
+    // Close the call
     if (callRef.current) {
       callRef.current.close();
     }
 
-    // Stop and close the local media stream and tracks
-    if (localStream) {
-      const tracks = localStream.getTracks();
-      tracks.forEach((track) => track.stop());
-    }
-
-    // Set localStream and remoteStream to null to turn off the video
-    setLocalStream(null);
-    setRemoteStream(null);
-
     // Notify the other user that the call has ended
     sendCallEndedMessage();
+
+    // Navigate to the home page
+    navigate('/');
   };
 
   const sendCallEndedMessage = () => {
-    const friendId = `room-${roomId}`;
+    const friendId = localStorage.getItem('friendId');
     const dataConnection = peerRef.current.connect(friendId);
 
     dataConnection.on('open', () => {
       dataConnection.send('call-ended');
       dataConnection.close();
     });
-
-    toast.success('Call ended successfully');
-    // Navigate to the home page or the room page
+    toast.success("Call ended Sucessfully");
+    // Navigate to the home page
     navigate('/');
   };
 
@@ -162,7 +159,8 @@ function VideoCall() {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="flex">
+      {peerId && <h1>My peer ID is: {peerId}</h1>}
+      <div className='flex'>
         <video ref={localVideoRef} autoPlay playsInline muted className="w-1/2 mt-10 mx-5" />
         <video ref={remoteVideoRef} autoPlay playsInline className="w-1/2 mt-10 mx-5" />
       </div>
@@ -173,14 +171,14 @@ function VideoCall() {
             <FiPhoneOff size={32} />
           </button>
         ) : (
-          <button onClick={joinRoom} className="text-green-600">
+          <button onClick={startCall} className="text-green-600">
             <FiPhoneCall size={32} />
           </button>
         )}
-        <button onClick={toggleMic} className={isMicMuted ? 'text-red-600' : 'text-green-600'}>
+        <button onClick={toggleMic} className={isMicMuted ? "text-red-600" : "text-green-600"}>
           {isMicMuted ? <FiMic size={32} /> : <FiMicOff size={32} />}
         </button>
-        <button onClick={toggleVideo} className={isVideoOff ? 'text-red-600' : 'text-green-600'}>
+        <button onClick={toggleVideo} className={isVideoOff ? "text-red-600" : "text-green-600"}>
           {isVideoOff ? <FiVideoOff size={32} /> : <FiVideo size={32} />}
         </button>
       </div>
