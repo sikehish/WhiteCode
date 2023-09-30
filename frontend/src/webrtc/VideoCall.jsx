@@ -9,6 +9,7 @@ function VideoCall() {
   const remoteVideoRef = useRef();
   const peerRef = useRef(null);
   const callRef = useRef(null);
+  const [peerId, setPeerId] =useState(null)
   const [isError, setIsError] = useState(false);
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
@@ -16,13 +17,14 @@ function VideoCall() {
   const [isVideoOff, setIsVideoOff] = useState(false);
   const navigate = useNavigate();
 
+  
   const initializePeer = useCallback(() => {
     const savedSession = JSON.parse(localStorage.getItem('videoCallSession'));
     const p = new Peer(savedSession ? savedSession.peerId : undefined);
 
     p.on('open', (id) => {
       console.log('My peer ID is: ' + id);
-
+      setPeerId(id)
       // Store session information in localStorage
       const sessionData = {
         peerId: id,
@@ -49,23 +51,12 @@ function VideoCall() {
           incomingCall.on('stream', (remoteStream) => {
             setRemoteStream(remoteStream);
             remoteVideoRef.current.srcObject = remoteStream;
-            incomingCall.on('close', () => {
-            // Clear session information when the call ends
-            localStorage.removeItem('videoCallSession');
-
-            // Close the call and streams
-            if (callRef.current) {
-              callRef.current.close();
-            }
-            setLocalStream(null);
-            setRemoteStream(null);
-            toast.success("Call ended!")
-            // Navigate to the home page
-            navigate('/');
-          });
           });
 
-          
+          // Handle call ended by the other user
+          incomingCall.on('close', () => {
+            endCall();
+          });
         })
         .catch((error) => {
           console.error('Error accessing webcam/microphone:', error);
@@ -81,8 +72,9 @@ function VideoCall() {
     if (!friendId) {
       return;
     }
+
     // Store the friendId in localStorage
-  localStorage.setItem('friendId', friendId);
+    localStorage.setItem('friendId', friendId);
 
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
@@ -112,39 +104,36 @@ function VideoCall() {
 
   useEffect(() => {
     initializePeer();
-  
-    // Listen for incoming data connections
-    peerRef.current.on('connection', (dataConnection) => {
-      dataConnection.on('data', (data) => {
-        if (data === 'call-ended') {
-          // Call has ended, navigate to the home page
-          navigate('/');
-          toast.success('Call ended by the other user.');
-        }
-      });
-    });
-  }, [initializePeer, navigate]);
-  
+  }, [initializePeer]);
+
+  const endCall = () => {
+    // Clear session information when the call ends
+    localStorage.removeItem('videoCallSession');
+    setLocalStream(null);
+    setRemoteStream(null);
+
+    // Close the call
+    if (callRef.current) {
+      callRef.current.close();
+    }
+
+    // Notify the other user that the call has ended
+    sendCallEndedMessage();
+
+    // Navigate to the home page
+    toast.success("Meeting ended!")
+    navigate('/');
+  };
 
   const sendCallEndedMessage = () => {
-    const friendId = localStorage.getItem('friendId'); // Retrieve friendId from localStorage
+    const friendId = localStorage.getItem('friendId');
     const dataConnection = peerRef.current.connect(friendId);
-  
+
     dataConnection.on('open', () => {
       dataConnection.send('call-ended');
       dataConnection.close();
     });
   };
-  
-  
-  const endCall = () => {
-    localStorage.removeItem('videoCallSession');
-    if (callRef.current) {
-      callRef.current.close();
-    }
-    sendCallEndedMessage(); // Notify the other peer that the call has ended
-  };
-  
 
   const toggleMic = () => {
     if (localStream) {
@@ -168,6 +157,7 @@ function VideoCall() {
 
   return (
     <div className="flex flex-col items-center">
+      {peerId && <h1>My peer ID is: {peerId}</h1>}
       <div className='flex'>
         <video ref={localVideoRef} autoPlay playsInline muted className="w-1/2 mt-10 mx-5" />
         <video ref={remoteVideoRef} autoPlay playsInline className="w-1/2 mt-10 mx-5" />
