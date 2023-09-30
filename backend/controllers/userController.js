@@ -80,6 +80,7 @@ exports.userSignup=asyncWrapper(async (req, res) => {
 })
 
 exports.getPeerId=asyncWrapper(async (req, res) => {
+  // console.log("HAHAHAHA")
   const { email } = req.params;
 
     const user = await User.findOne({ email });
@@ -142,7 +143,7 @@ exports.userVerify=asyncWrapper(async (req,res)=>{
   const {token} = req.params;
   // try{
     const { id }= jwt.verify(token,process.env.JWT_KEY)
-  console.log(token, id)
+  // console.log(token, id)
   const newDoc = await User.findByIdAndUpdate(id,{ verified: true},{
     new: true
   } )
