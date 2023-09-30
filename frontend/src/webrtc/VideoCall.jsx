@@ -1,96 +1,132 @@
-// In your React component (e.g., VideoCall.js)
 import React, { useEffect, useRef, useState } from 'react';
 import Peer from 'peerjs';
-import { useAuthContext } from '../context/AuthContext';
+import { FiVideo, FiMic, FiPhoneCall, FiPhoneOff, FiVideoOff, FiMicOff } from 'react-icons/fi';
 
 function VideoCall() {
   const localVideoRef = useRef();
   const remoteVideoRef = useRef();
-  const [isError, setIsError]=useState(false);
+  const [isError, setIsError] = useState(false);
+  const [peer, setPeer] = useState(null);
+  const [localStream, setLocalStream] = useState(null);
+  const [remoteStream, setRemoteStream] = useState(null);
+  const [call, setCall] = useState(null);
+  const [isMicMuted, setIsMicMuted] = useState(false);
+  const [isVideoOff, setIsVideoOff] = useState(false);
 
-  const { state } = useAuthContext()
+  const initializePeer = () => {
+    const peer = new Peer();
 
-  let localStream;
-  let peer;
+    peer.on('open', (id) => {
+      console.log('My peer ID is: ' + id);
+    });
 
-  useEffect(() => {
-    // Initialize PeerJS with your own API key
-    // console.log(state)
-    // console.log(state)
-    const fetchPeerId= async()=>{
-      const res= await fetch(`api/users/peerid/${state?.user?.email}`,{
-        headers:{
-          Authorization:`Bearer ${state?.user?.token}`
-        }
-      });
-      const data= await res.json();
-      console.log(data)
-      return data;
+    peer.on('call', (incomingCall) => {
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: true })
+        .then((stream) => {
+          setLocalStream(stream);
+          localVideoRef.current.srcObject = stream;
 
-}  
+          setCall(incomingCall);
 
-if(state?.user?.email){
-const peerId=fetchPeerId().then(data=> {
-  return data
-});
-console.log(peerId)
- peer = new Peer(peerId);
- console.log(peer)
-
-    // Get access to user's webcam and microphone
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        localVideoRef.current.srcObject = stream;
-        localStream = stream;
-
-        // Define your PeerJS events (e.g., 'open', 'call', 'stream', 'close')
-        peer.on('open', (id) => {
-          // 'id' is the unique PeerJS ID for this client
-          console.log('My peer ID is: ' + id);
-        });
-
-        // Handle incoming calls
-        peer.on('call', (call) => {
-          // Answer the call and add remote stream to the video element
-          call.answer(localStream);
-          call.on('stream', (remoteStream) => {
+          incomingCall.answer(stream);
+          incomingCall.on('stream', (remoteStream) => {
+            setRemoteStream(remoteStream);
             remoteVideoRef.current.srcObject = remoteStream;
           });
+        })
+        .catch((error) => {
+          console.error('Error accessing webcam/microphone:', error);
+          setIsError(true);
+        });
+    });
+
+    setPeer(peer);
+  };
+
+  useEffect(() => {
+    initializePeer();
+  }, []);
+
+  const startCall = () => {
+    const friendId = prompt('Enter your friend\'s PeerJS ID:');
+    if (!friendId) {
+      return;
+    }
+
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        setLocalStream(stream);
+        localVideoRef.current.srcObject = stream;
+
+        const call = peer.call(friendId, stream);
+        call.on('stream', (remoteStream) => {
+          setRemoteStream(remoteStream);
+          remoteVideoRef.current.srcObject = remoteStream;
         });
       })
       .catch((error) => {
         console.error('Error accessing webcam/microphone:', error);
+        setIsError(true);
       });
+  };
 
-    return () => {
-      // Cleanup: close the PeerJS connection and stop local stream
-      if (peer) {
-        peer.destroy();
-      }
-      if (localStream) {
-        localStream.getTracks().forEach((track) => {
-          track.stop();
-        });
-      }
-    } }
-  }, [state?.user]);
+  const endCall = () => {
+    if (call) {
+      call.close();
+    }
+    setLocalStream(null);
+    setRemoteStream(null);
+    setCall(null);
+  };
 
-  const startCall = () => {
-    // Create a call to another PeerJS ID (recipientPeerId)
-    const recipientPeerId = 'RECIPIENT_PEER_ID'; // Replace with the recipient's ID
-    const call = peer.call(recipientPeerId, localStream);
+  const toggleMic = () => {
+    if (localStream) {
+      const audioTracks = localStream.getAudioTracks();
+      audioTracks.forEach((track) => {
+        track.enabled = !isMicMuted;
+      });
+      setIsMicMuted(!isMicMuted);
+    }
+  };
 
-    // Add remote stream to the video element
-    call.on('stream', (remoteStream) => {
-      remoteVideoRef.current.srcObject = remoteStream;
-    });
+  const toggleVideo = () => {
+    if (localStream) {
+      const videoTracks = localStream.getVideoTracks();
+      videoTracks.forEach((track) => {
+        track.enabled = !isVideoOff;
+      });
+      setIsVideoOff(!isVideoOff);
+    }
   };
 
   return (
-    <div>
-      <video ref={localVideoRef} autoPlay playsInline muted className="w-1/2" />
-      <video ref={remoteVideoRef} autoPlay playsInline className="w-1/2" />
-      <button onClick={startCall}>Start Call</button>
+    <div className="flex flex-col items-center">
+      <div className="my-4">
+        <video ref={localVideoRef} autoPlay playsInline muted className="w-1/2" />
+      </div>
+      <div className="my-4">
+        <video ref={remoteVideoRef} autoPlay playsInline className="w-1/2" />
+      </div>
+      <div className="flex space-x-4 my-4">
+        {isError && <p>Error accessing webcam/microphone</p>}
+        {call ? (
+          <button onClick={endCall} className="text-red-600">
+            <FiPhoneOff size={32} />
+          </button>
+        ) : (
+          <button onClick={startCall} className="text-green-600">
+            <FiPhoneCall size={32} />
+          </button>
+        )}
+        <button onClick={toggleMic} className={isMicMuted ? "text-red-600" : "text-green-600"}>
+          {isMicMuted ? <FiMic size={32} /> : <FiMicOff size={32} />}
+        </button>
+        <button onClick={toggleVideo} className={isVideoOff ? "text-red-600" : "text-green-600"}>
+          {isVideoOff ? <FiVideoOff size={32} /> : <FiVideo size={32} />}
+        </button>
+      </div>
     </div>
   );
 }
