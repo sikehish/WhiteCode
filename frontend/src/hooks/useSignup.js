@@ -10,7 +10,7 @@ function useSignup() {
   const signup = async (resData) => {
     setIsSucc(false);
     setIsLoading(true);
-    setError(false);
+    setError(null);
 
     const res = await fetch("api/users/signup", {
       method: "POST",
@@ -29,13 +29,13 @@ function useSignup() {
       setIsLoading(false);
       setIsSucc(false);
       //Some error -  refer to userController to see what error was thrown and most imp-the err property name
-      setError(data.err);
+      setError(res.statusText); //data.err is undefined
     } else if (res.ok) {
       dispatch({ type: "SIGNUP" });
       // localStorage.setItem("user", JSON.stringify(data));
       setIsSucc(true);
       setIsLoading(false);
-      setError(false);
+      setError(null);
     }
   };
 

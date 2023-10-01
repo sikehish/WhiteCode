@@ -32,14 +32,14 @@ function LoginPage({ setIsAuthenticated }) {
             if (signupSucc) {
                 toast.success("Sign up successful! Redirecting to login...");
                 setTimeout(() => {
-                    setIsLogin(true); 
+                    setIsLogin(true);
                     navigate('/login');
                 }, 1000); // Redirect to login after 1 second
-            } else if (signupError){
+            } else if (signupError) {
                 toast.error("Sign up failed. Please try again later.");
             }
         }
-    }, [isLogin, loginSucc, signupSucc]);
+    }, [isLogin, loginSucc, signupSucc, loginError, signupError]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -58,8 +58,8 @@ function LoginPage({ setIsAuthenticated }) {
             "confirmPassword": formData.confirmPassword,
             "name": formData.name,
         }
-        
-        isLogin? login(data):signup(data);  
+
+        isLogin ? login(data) : signup(data);
     }
 
     return (
