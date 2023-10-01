@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Drawer } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useAuthContext } from '../context/AuthContext';
@@ -8,15 +8,25 @@ import useLogout from '../hooks/useLogout';
 
 const Navbar = () => {
     const [anchorEl, setAnchorEl] = useState(null);
+    const [drawerOpen, setDrawerOpen] = useState(false);
     const { state } = useAuthContext();
-    const navigate = useNavigate();
     const logout = useLogout();
+    const navigate = useNavigate()
+
     const handleProfileMenuOpen = (event) => {
-        setAnchorEl(event.currentTarget);
+        if (window.innerWidth < 600) {
+            setDrawerOpen(true);
+        } else {
+            setAnchorEl(event.currentTarget);
+        }
     };
 
     const handleProfileMenuClose = () => {
-        setAnchorEl(null);
+        if (window.innerWidth < 600) {
+            setDrawerOpen(false);
+        } else {
+            setAnchorEl(null);
+        }
     };
 
     const loginLogoutItem = state?.user ? (
@@ -48,20 +58,24 @@ const Navbar = () => {
                 >
                     <AccountCircleIcon />
                 </IconButton>
-                <Menu
-                    id="profile-menu"
-                    anchorEl={anchorEl}
-                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                    keepMounted
-                    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                    open={Boolean(anchorEl)}
+                <Drawer
+                    anchor="right"
+                    open={drawerOpen}
                     onClose={handleProfileMenuClose}
+                    PaperProps={{
+                        style: {
+                            width: 250,
+                            backgroundColor: '#fff',
+                            border: '1px solid #ccc',
+                            padding: 16
+                        }
+                    }}
                 >
                     <MenuItem onClick={handleProfileMenuClose}>Start a meeting</MenuItem>
                     <MenuItem onClick={handleProfileMenuClose}>Profile</MenuItem>
                     <MenuItem onClick={handleProfileMenuClose}>Settings</MenuItem>
                     {loginLogoutItem}
-                </Menu>
+                </Drawer>
             </Toolbar>
         </AppBar>
     );
