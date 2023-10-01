@@ -1,9 +1,10 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import viteBasicSslPlugin from "@vitejs/plugin-basic-ssl";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), viteBasicSslPlugin()],
   server: {
     host: true,
     port: 5173,
@@ -17,5 +18,10 @@ export default defineConfig({
   },
   define: {
     global: {},
+  },
+  resolve: {
+    alias: {
+      "readable-stream": "vite-compatible-readable-stream",
+    },
   },
 });

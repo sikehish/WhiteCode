@@ -1,8 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
+import global from 'global'
+import * as process from "process";
 import Peer from "simple-peer";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
+
+global.process = process;
 
 const Container = styled.div`
     padding: 20px;
