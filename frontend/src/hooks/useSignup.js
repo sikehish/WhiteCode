@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuthContext } from "./AuthContext";
+import { useAuthContext } from "../context/AuthContext";
 
 function useSignup() {
   const [error, setError] = useState(null);
@@ -7,7 +7,7 @@ function useSignup() {
   const [isSucc, setIsSucc] = useState(null);
   const { dispatch } = useAuthContext();
 
-  const signup = async (data) => {
+  const signup = async (resData) => {
     setIsSucc(false);
     setIsLoading(true);
     setError(false);
@@ -19,7 +19,7 @@ function useSignup() {
         // mode: "no-cors",
         // "Access-Control-Allow-Origin": "http://localhost:3000",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(resData),
     });
 
     const data = await res.json();

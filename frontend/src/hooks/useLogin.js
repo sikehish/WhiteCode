@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuthContext } from "./AuthContext";
+import { useAuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 
 function useLogin() {
@@ -8,7 +8,7 @@ function useLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const { dispatch } = useAuthContext();
 
-  const login = async (data) => {
+  const login = async (resData) => {
     setIsSucc(false);
     setIsLoading(true);
     setError(false);
@@ -18,7 +18,7 @@ function useLogin() {
       headers: {
         "Content-type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(resData),
     });
 
     const data = await res.json();
