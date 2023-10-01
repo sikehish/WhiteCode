@@ -3,12 +3,13 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import GuestPage from './pages/GuestPage';
-import VideoCall from './webrtc/VideoCall'
-import Room from './webrtc/RoomPage';
+// import VideoCall from './webrtc/VideoCall'
+import Room from './webrtc/Room';
 import { useAuthContext } from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import RoomPage from './webrtc/RoomPage';
+// import RoomPage from './webrtc/RoomPage';
+import CreateRoom from './webrtc/CreateRoom';
 
 function App() {
   const {state}=useAuthContext()
@@ -20,8 +21,10 @@ function App() {
         <Route path="/signup" element={<LoginPage isLogin={false}  />} />
         <Route path="/" element={<GuestPage />} />
         <Route path="/dashboard/*" element={<HomePage />} />
-        <Route path="/video/:id" element={<VideoCall />} />
-        <Route path="/room" element={<RoomPage />} />
+        {/* <Route path="/video/:id" element={<VideoCall />} /> */}
+        {/* <Route path="/room" element={<RoomPage />} /> */}
+        <Route path="/create-room" element={<CreateRoom />} />
+        <Route path="/room/:roomID" element={<Room />} />
       </Routes>
       <ToastContainer position="top-right"/>
     </Router>
