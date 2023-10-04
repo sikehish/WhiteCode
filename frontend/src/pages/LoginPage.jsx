@@ -1,22 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import useLogin from '../hooks/useLogin';
+import useSignup from '../hooks/useSignup';
 
 function LoginPage({ setIsAuthenticated }) {
     const navigate = useNavigate();
-    const {dispatch} = useAuthContext();
+    const { dispatch } = useAuthContext();
     const [isLogin, setIsLogin] = useState(true); // To toggle between login and signup
-    const [error, setError] = useState(null);
-    const [isSucc, setIsSucc] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: '',
         confirmPassword: '',
     });
+
+    const { login, error: loginError, isLoading: loginLoading, isSucc: loginSucc } = useLogin();
+    const { signup, error: signupError, isLoading: signupLoading, isSucc: signupSucc } = useSignup();
+
+    useEffect(() => {
+        if (isLogin) {
+            if (loginSucc) {
+                toast.success("Logged in successfully!");
+                navigate('/dashboard/*');
+            } else if (loginError) {
+                toast.error("Login failed. Please check your credentials.");
+            }
+        } else {
+            if (signupSucc) {
+                toast.success("Sign up successful! Redirecting to login...");
+                setTimeout(() => {
+                    setIsLogin(true);
+                    navigate('/login');
+                }, 1000); // Redirect to login after 1 second
+            } else if (signupError) {
+                toast.error("Sign up failed. Please try again later.");
+            }
+        }
+    }, [isLogin, loginSucc, signupSucc, loginError, signupError]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -25,76 +48,19 @@ function LoginPage({ setIsAuthenticated }) {
             [name]: value,
         });
     };
-    const handleSubmit =async (e) => {
+    const handleSubmit = async (e) => {
+
         e.preventDefault();
-        //Add the fetch request to the backend here and its should be done
-        let data={
-            "email":formData.email,
-            "password":formData.password,
-            "confirmPassword":formData.confirmPassword,
-            "name":formData.name,
-        }
-        let reqRoute;
-        if(isLogin){
-            reqRoute="api/users/login";
-        }
-        else{
-            reqRoute="api/users/signup";
-        }
-        const requestOptions = {
-            mode: 'cors',
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:JSON.stringify(data),
-        };
-        
-        if (isLogin) {
-            // Perform login logic here 
-            //  fetch(
-            // reqRoute,requestOptions
-            // ).then(()=>{
 
-            //     setIsAuthenticated(true);
-            //     navigate("/dashboard/*")
-            // }).catch((e)=>{
-            //     console.log("the fetch request failed");
-            // });
-            const response=await fetch(reqRoute,requestOptions)
-            const {data}=await response.json();
-            console.log(data)
-           if(response.status==200){
-            dispatch({payload: data, type: 'LOGIN'})
-            localStorage.setItem("user", JSON.stringify(data));
-            toast.success("Logged in successfully!");
-            setError(false);
-            setIsLoading(false);
-            setIsSucc(true);
-            navigate("/dashboard/*")
-           }
-           else{
-               toast.error("Log in not possible!");
-                setIsLoading(false);
-                setIsSucc(false);
-                navigate('/login')
-           }
-            
-        } else {
-            // Perform signup logic here
-           const response=await fetch(reqRoute,requestOptions)
-           console.log(response.status)
-           if(response.status==201){
-                setIsLogin(true);
-                navigate('/login');
-           }
-           else{
-                navigate('/signup')
-           }
-           
+        let data = {
+            "email": formData.email,
+            "password": formData.password,
+            "confirmPassword": formData.confirmPassword,
+            "name": formData.name,
         }
 
-        {/* check data. REMOVE THIS LATER */ }
-        //console.log('Form data:', formData);
-    };
+        isLogin ? login(data) : signup(data);
+    }
 
     return (
         <div className="flex items-center justify-center min-h-screen">

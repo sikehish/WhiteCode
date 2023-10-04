@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuthContext } from "./AuthContext";
+import { useAuthContext } from "../context/AuthContext";
 
 function useSignup() {
   const [error, setError] = useState(null);
@@ -7,10 +7,10 @@ function useSignup() {
   const [isSucc, setIsSucc] = useState(null);
   const { dispatch } = useAuthContext();
 
-  const signup = async (data) => {
+  const signup = async (resData) => {
     setIsSucc(false);
     setIsLoading(true);
-    setError(false);
+    setError(null);
 
     const res = await fetch("api/users/signup", {
       method: "POST",
@@ -19,7 +19,7 @@ function useSignup() {
         // mode: "no-cors",
         // "Access-Control-Allow-Origin": "http://localhost:3000",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(resData),
     });
 
     const data = await res.json();
@@ -29,13 +29,13 @@ function useSignup() {
       setIsLoading(false);
       setIsSucc(false);
       //Some error -  refer to userController to see what error was thrown and most imp-the err property name
-      setError(data.err);
+      setError(res.statusText); //data.err is undefined
     } else if (res.ok) {
       dispatch({ type: "SIGNUP" });
       // localStorage.setItem("user", JSON.stringify(data));
       setIsSucc(true);
       setIsLoading(false);
-      setError(false);
+      setError(null);
     }
   };
 

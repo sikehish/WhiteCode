@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useAuthContext } from "./AuthContext";
-import { toast } from "react-toastify";
+import { useAuthContext } from "../context/AuthContext";
 
 function useLogin() {
   const [error, setError] = useState(null);
@@ -8,17 +7,17 @@ function useLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const { dispatch } = useAuthContext();
 
-  const login = async (data) => {
+  const login = async (resData) => {
     setIsSucc(false);
     setIsLoading(true);
-    setError(false);
+    setError(null);
 
     const res = await fetch("/api/users/login", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(resData),
     });
 
     const data = await res.json();
@@ -28,11 +27,11 @@ function useLogin() {
       setIsLoading(false);
       setIsSucc(false);
       //Some error -  refer to userController to see what error was thrown and most imp-the err property name
-      setError(data.err);
+      setError(res.statusText); //data.err is undefined
     } else if (res.ok) {
       localStorage.setItem("user", JSON.stringify(data.data));
       dispatch({ type: "LOGIN", payload: data.data });
-      setError(false);
+      setError(null);
       setIsLoading(false);
       setIsSucc(true);
     }
