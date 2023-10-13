@@ -1,9 +1,9 @@
 import React from 'react'
 
-function WhiteBoard() {
+function CodeEditor() {
   return (
-    <div>WhiteBoard</div>
+    <div>CodeEditor</div>
   )
 }
 
-export default WhiteBoard
+export default CodeEditor
