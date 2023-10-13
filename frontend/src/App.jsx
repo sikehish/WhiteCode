@@ -10,6 +10,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // import RoomPage from './webrtc/RoomPage';
 import CreateRoom from './webrtc/CreateRoom';
+import WhiteBoard from './pages/WhiteBoard';
 
 function App() {
   const {state}=useAuthContext()
@@ -25,6 +26,7 @@ function App() {
         {/* <Route path="/room" element={<RoomPage />} /> */}
         <Route path="/create-room" element={<CreateRoom />} />
         <Route path="/room/:roomID" element={<Room />} />
+        <Route path="/WhiteBoard" element={<WhiteBoard />} />
       </Routes>
       <ToastContainer position="top-right"/>
     </Router>
