@@ -26,7 +26,7 @@ function App() {
         {/* <Route path="/room" element={<RoomPage />} /> */}
         <Route path="/create-room" element={<CreateRoom />} />
         <Route path="/room/:roomID" element={<Room />} />
-        <Route path="/CodeEditor" element={<CodeEditor />} />
+        <Route path="/code-editor" element={<CodeEditor />} />
       </Routes>
       <ToastContainer position="top-right"/>
     </Router>
