@@ -1,15 +1,16 @@
 name: "A sample workflow"
 on:
   push:
-  workflow-dispatch:
+  workflow_dispatch:
 
 jobs:
-  runs-on: ubuntu-latest
-  steps:
-    - name: "Run echo command"
-      run: "echo sample workflow running"
-    - name: "Use the normal actions workflow"
-      uses: actions/checkout@v3
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Run echo command"
+        run: "echo sample workflow running"
+      - name: "Use the normal actions workflow"
+        uses: actions/checkout@v3
 
 
 
